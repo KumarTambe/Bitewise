@@ -2,7 +2,13 @@ import db from '../db/db.js'
 
 export async function getAllMessages(req, res) {
     const dish = req.params.dishId
-    const result = await db.query(`SELECT * FROM messages WHERE dish_id = $1`, [dish]);
+    const result = await db.query(`
+        SELECT messages.id, messages.dish_id, messages.user_id, messages.text, messages.created_at, users.name AS user_name
+        FROM messages
+        LEFT JOIN users ON users.id = messages.user_id
+        WHERE messages.dish_id = $1
+        ORDER BY messages.created_at DESC
+    `, [dish]);
     res.status(200).json(result.rows);
 }
 

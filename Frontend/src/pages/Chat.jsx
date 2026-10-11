@@ -1,68 +1,64 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { Avatar } from "../components/ui";
 
 function Chat() {
-    const [savedMessages, setSavedMessages] = useState([
-        { id: 1, user: "XYZ", text: "Hello World" }
+    const [savedMessages, setSavedMessages] = useState(() => [
+        { id: Date.now() - 1000 * 60 * 12, user: "Bitewise", text: "Welcome to the community board! Ask what's fresh, share today's specials, or find someone to grab chai with." }
     ])
-    const { user, setUser } = useContext(AuthContext)
+    const { user } = useContext(AuthContext)
     const [msg, setMsg] = useState('');
+    const bottomRef = useRef(null)
 
-    function handleSubmit() {
-        setSavedMessages([...savedMessages, { id: Date.now(), user: user, text: msg }])
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [savedMessages])
+
+    function handleSubmit(e) {
+        e.preventDefault()
+        if (!msg.trim()) return
+        setSavedMessages([...savedMessages, { id: Date.now(), user: user ?? 'You', text: msg }])
         setMsg('');
     }
 
     return (
-        <div className="min-h-screen text-white px-6 py-8 pb-28 page-fade-in">
-            <div className="max-w-2xl mx-auto">
-                <h1 className="text-3xl font-extrabold tracking-tight text-amber-400 mb-6 flex items-center gap-2">
-                    💬 General Discussion
-                </h1>
+        <div className="px-4 sm:px-6 py-8 page-fade-in">
+            <div className="max-w-3xl mx-auto">
+                <p className="eyebrow mb-2">Community</p>
+                <h1 className="font-display text-4xl font-semibold mb-6">General discussion</h1>
 
-                <div className="surface-card p-6 mb-6 min-h-96 max-h-150 overflow-y-auto flex flex-col gap-3">
-                    {savedMessages.length === 0 ? (
-                        <div className="text-center py-10">
-                            <div className="text-5xl mb-3">💭</div>
-                            <p className="text-slate-500">No messages yet. Be the first to comment!</p>
-                        </div>
-                    ) : (
-                        savedMessages.map((message) => {
-                            const isMine = message.user === user;
+                <div className="card flex flex-col h-[65vh] min-h-96">
+                    <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+                        {savedMessages.map((message) => {
+                            const isMine = message.user === (user ?? 'You');
                             return (
-                                <div key={message.id} className={`flex msg-slide-up ${isMine ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[75%] rounded-2xl px-4 py-3 ${isMine ? 'bg-indigo-500/90 rounded-br-sm' : 'bg-slate-800 rounded-bl-sm border border-slate-700'}`}>
-                                        <div className="flex items-baseline gap-2 mb-1">
-                                            <span className={`font-semibold text-sm ${isMine ? 'text-white' : 'text-amber-400'}`}>{message.user}</span>
-                                            <span className={`text-xs ${isMine ? 'text-indigo-100' : 'text-slate-500'}`}>
+                                <div key={message.id} className={`flex gap-3 ${isMine ? 'flex-row-reverse' : ''}`}>
+                                    <Avatar name={message.user} />
+                                    <div className={`max-w-[75%] ${isMine ? 'text-right' : ''}`}>
+                                        <div className={`flex items-baseline gap-2 mb-1 ${isMine ? 'justify-end' : ''}`}>
+                                            <span className="font-semibold text-sm">{message.user}</span>
+                                            <span className="text-xs text-muted">
                                                 {new Date(message.id).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                         </div>
-                                        <p className="text-white break-words">{message.text}</p>
+                                        <p className={`inline-block text-left rounded-2xl px-4 py-2.5 break-words ${isMine ? 'bg-ink text-white rounded-tr-sm' : 'bg-cream text-ink rounded-tl-sm'}`}>{message.text}</p>
                                     </div>
                                 </div>
                             )
-                        })
-                    )}
-                </div>
+                        })}
+                        <div ref={bottomRef}></div>
+                    </div>
 
-                <div className="sticky bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-md pt-4 pb-2 flex gap-3">
-                    <input
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSubmit()
-                        }}
-                        type="text"
-                        placeholder="Type a message..."
-                        value={msg}
-                        onChange={(e) => setMsg(e.target.value)}
-                        className="flex-1 bg-slate-800 text-white px-4 py-3 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 transition border border-slate-700"
-                    />
-                    <button
-                        onClick={handleSubmit}
-                        className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-lg transition btn-anim focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
-                    >
-                        Send
-                    </button>
+                    <form onSubmit={handleSubmit} className="border-t border-line p-3 flex gap-2">
+                        <input
+                            type="text"
+                            placeholder="Type a message…"
+                            value={msg}
+                            onChange={(e) => setMsg(e.target.value)}
+                            className="input !rounded-full"
+                        />
+                        <button type="submit" disabled={!msg.trim()} className="btn btn-primary shrink-0">Send</button>
+                    </form>
                 </div>
             </div>
         </div>

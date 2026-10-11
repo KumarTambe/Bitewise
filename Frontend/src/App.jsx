@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import Admin from './pages/Admin.jsx'
 import Chat from './pages/Chat.jsx'
@@ -24,7 +23,7 @@ function App() {
         } />
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/admin' element={
-          <ProtectedRoute>
+          <ProtectedRoute adminOnly>
             <Admin />
           </ProtectedRoute>
         } />

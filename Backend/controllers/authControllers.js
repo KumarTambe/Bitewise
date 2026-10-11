@@ -15,7 +15,7 @@ export async function Register(req, res) {
             const hashedPass = await bcrypt.hash(password, 10)
             const DBresult = await db.query(`INSERT INTO users(email,name,password) VALUES($1,$2,$3) RETURNING *;`, [email, req.body.name, hashedPass])
             const newUser = DBresult.rows[0]
-            const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET)
+            const token = jwt.sign({ id: newUser.id, role: newUser.role, name: newUser.name }, process.env.JWT_SECRET)
             res.status(201).json({ message: "User created sucessfully", token })
         }
     }
@@ -35,8 +35,8 @@ export async function Login(req, res) {
             if (!isMatch) {
                 res.status(401).json({ message: "Wrong password" })
             } else {
-                const token = jwt.sign({ id: result.rows[0].id, role: result.rows[0].role }, process.env.JWT_SECRET)
-                res.status(200).json({ message: "Login successful", token, role: result.rows[0].role })
+                const token = jwt.sign({ id: result.rows[0].id, role: result.rows[0].role, name: result.rows[0].name }, process.env.JWT_SECRET)
+                res.status(200).json({ message: "Login successful", token, role: result.rows[0].role, name: result.rows[0].name })
             }
         }
     }

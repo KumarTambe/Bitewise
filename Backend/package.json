@@ -1,10 +1,12 @@
 {
-  "name": "backend",
+  "name": "bitewise-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "seed": "node scripts/seedReviews.js",
+    "seed:clean": "node scripts/seedReviews.js --clean"
   },
   "keywords": [],
   "author": "",
